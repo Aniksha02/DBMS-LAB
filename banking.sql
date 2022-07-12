@@ -1,14 +1,16 @@
 show tables;
 show databases;
-
-create database banking;
-use banking;
+drop database banking;
+create database banking1;
+use banking1;
 
  create table Branch(branchname varchar(30),branchcity varchar(30),assests real, primary key(branchname)); 
 create table BankAccount(accno integer,branchname varchar(30), balance real ,primary key (accno),foreign key (branchname) references Branch(branchname)); 
 create table BankCustomer(customername varchar(30),customerstreet varchar(30),customercity varchar(30),primary key(customername)); 
-create table Depositer(customername varchar(30),accno integer,primary key(customername,accno),foreign key(customername) references BankCustomer(customername), foreign key(accno) references BankAccount(accno)); 
-create table Loan (loannumber int,branchname varchar(30),amount real,primary key (loannumber), foreign key (branchname) references Branch(branchname)); 
+create table Depositer(customername varchar(30),accno integer,primary key(customername,accno),
+foreign key(customername) references BankCustomer(customername), foreign key(accno) references BankAccount(accno)); 
+create table Loan (loannumber int,branchname varchar(30),amount real,primary key (loannumber),
+ foreign key (branchname) references Branch(branchname)); 
  
  desc Branch;
  desc BankAccount;
@@ -70,9 +72,10 @@ insert into bankcustomer values("Avinash","Bull_Temple_Road","Bangalore");
 
 select BC.customername from BankCustomer BC where not exists(
 	select branchname from Branch where branchcity = 'Delhi'
-	except
+	and not exists(
     select BA.branchname from Depositer D, BankAccount BA
-	where D.accno = BA.accno and BC.customername = D.customername
+	where D.accno = BA.accno and BC.customername = D.customername)
 );
 
 delete from BankAccount where branchname in( select branchname from Branch where branchcity = 'Bombay' );
+select* from BankAccount;
