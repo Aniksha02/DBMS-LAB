@@ -1,50 +1,87 @@
-create database supply;
-use supply;
-create table supplier(sid int,sname varchar(20),address varchar(20),primary key(sid));
-create table parts(pid int,pname varchar(20),color varchar(20),primary key(pid));
-create table catalog(sid int,pid int,cost real,foreign key(sid) references supplier(sid),
-foreign key(pid) references parts(pid),
-primary key(sid,pid));
+create database supplier_db;
+use supplier_db;
+create table SUPPLIERS(sid int,sname varchar(20),address varchar(30), PRIMARY KEY(sid));
+create table PARTS(pid int,pname varchar(20),color varchar(20), PRIMARY KEY(pid));
+create table CATALOG(sid int,pid int,cost real, PRIMARY KEY(sid,pid),FOREIGN KEY(sid) REFERENCES SUPPLIERS(sid),FOREIGN KEY(pid) REFERENCES PARTS(pid));
+desc SUPPLIERS;
+desc PARTS;
+desc CATALOG;
+insert into SUPPLIERS(sid ,sname,address) 
+			values ("S0123","Acme Widget","Bengaluru"),
+			       ("S0234","Finolex","Bengaluru"),
+			       ("S0456","Johnsons","Chennai"),
+                   	       ("S0456","Niral","Hyderabad"),
+                   	       
+                   
+insert into PARTS(pid ,pname,color) 
+			values ("P0456","Hammer","Red"),
+			       ("P0456","Spanner","Red"),
+			       ("P0888","Wedge","Green"),
+                               ("P0998","Screwdriver","Green"),
+                               ("P0999","Brush","Yellow");
+                   
+insert into CATALOG(sid ,pid,cost) 
+			values ("S0123","P0456",3000),
+			       ("S0123","P0457",2000),
+			       ("S0123","P0888",1000),
+			       ("S0123","P0998",1000),
+			       ("S0123","P0999",1000),
+			       ("S0234","P0456",3100),
+			       ("S0234","P0457",2200),
+			       ("S0456","P0888",4000),
+			       ("S0456","P0999",5000),
+			       ("S0789","P0999",4000);
+                  
+                   
+commit;
 
-INSERT INTO  supplier VALUES ('1', 'acme', 'BANGALORE');
-INSERT INTO  supplier VALUES ('2', 'maruthi', 'MADRAS');
-INSERT INTO  supplier VALUES ('3', 'alto', 'BANGALORE');
-INSERT INTO  supplier VALUES ('4', 'audi', 'BOMBAY');
-
-
-INSERT INTO  parts  VALUES ('11', 'tshirt', 'red');
-INSERT INTO  parts  VALUES ('22', 'shirt', 'red');
-INSERT INTO  parts  VALUES ('33', 'pant', 'blue');
-INSERT INTO  parts  VALUES ('44', 'shorts', 'black');
-
-INSERT INTO  catalog VALUES ('1', '11', '11.0');
-INSERT INTO  catalog VALUES ('2', '22', '22.0');
-INSERT INTO  catalog VALUES ('3', '33', '33.0');
-INSERT INTO  catalog VALUES ('4', '44', '44.0');
-
-select * from catalog;
-SELECT DISTINCT P.pname
-FROM Parts P, Catalog C
+select DISTINCT P.pname
+FROM PARTS P,CATALOG C
 WHERE P.pid = C.pid;
 
-SELECT parts.pname
-FROM ((supplier
-INNER JOIN catalog ON supplier.sid = catalog.sid)
-INNER JOIN parts ON parts.pid = catalog.pid);
+SELECT S.sname FROM SUPPLIERS S
+WHERE NOT EXISTS 
+(SELECT
+P.pid FROM PARTS P
+WHERE NOT EXISTS
+(SELECT C.pid
+    FROM CATALOG C
+    WHERE C.SID = S.sid)
+    AND C.pid = P.pid
+    )
+    );
+    
+SELECT S.sname FROM SUPPLIERS S
+WHERE NOT EXISTS 
+(SELECT
+P.pid FROM PARTS P
+WHERE NOT EXISTS
+(SELECT C.pid
+    FROM CATALOG C
+    WHERE C.SID = S.sid)
+    AND C.pid = P.pid
+    AND P.color = 'red'));
+    )
+    );
 
-SELECT  C.sid
-  FROM  Catalog C
-  WHERE NOT EXISTS (
-     SELECT  P.pid
-       FROM  Parts P
-       WHERE NOT EXISTS (
-         SELECT  C1.sid
-           FROM  Catalog C1
-           WHERE C1.sid = C.sid
-             AND C1.pid = P.pid
-         )
-     );
-     
-SELECT DISTINCT P.pname
- FROM Parts P, Catalog C
-WHERE P.pid = C.pid;
+SELECT P.pname 
+FROM PART P,SUPPLIERS S,CATALOG C
+WHERE P.pid = C.pid AND S.sid = C.sid
+AND S.sname = 'Acme Widget'
+AND NOT EXISTS(SELECT *
+		FROM CATALOG C1,SUPPLIERS S1
+		WHERE P.pid = C1.pid
+		AND C1.sid = S1.sid
+		AND s1.sname <> 'Acme Widget'
+
+SELECT C1.sid,c1.cost,c2.sid,c2.cost
+FROM CATALOG C1,CATALOG C2
+WHERE C1.cost > C2.cost AND
+      C1.pid = C2.pid AND
+      C1.sid <> C2.sid;
+      
+SELECT DISTINCT SUPPLIERS.sid
+FROM SUPPLIERS,PARTS,CATALOG
+WHERE SUPPLIERS.sid = CATALOG.SID
+AND PARTS.pid = CATALOG.pid
+AND PARTS.color = 'red';
